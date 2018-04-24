@@ -11,10 +11,11 @@ var Voting = contract(voting_artifacts);
 
 let candidatos = {"Satoshi": "candidato-1", "Vitalik": "candidato-2"}
 
+// funcion para votar a un candidato que se pasa como parametro. Una vez minada la transaccion se actualiza el contador
 window.votar = function(candidato) {
   let nombreCandidato = $("#candidato").val();
   try {
-    $("#msg").html("Vote has been submitted. The vote count will increment as soon as the vote is recorded on the blockchain. Please wait.")
+    $("#msg").html("Tu voto ha sido emitido. El número de votos se actualizará cuando la transacción sea minada. Espera.")
     $("#candidato").val("");
 
     Voting.deployed().then(function(contractInstance) {
@@ -31,6 +32,7 @@ window.votar = function(candidato) {
   }
 }
 
+// cuando se carga la página se inicializa la conexión con la blockchain y se actualizan los votos de cada candidato
 $( document ).ready(function() {
   if (typeof web3 !== 'undefined') {
     console.warn("Usando web3 de fuente externa como Metamask")
@@ -42,10 +44,12 @@ $( document ).ready(function() {
 
   Voting.setProvider(web3.currentProvider);
   let nombreCandidatos = Object.keys(candidatos);
+
   for (var i = 0; i < nombreCandidatos.length; i++) {
     let nombre = nombreCandidatos[i];
     Voting.deployed().then(function(contractInstance) {
-      contractInstance.votosTotales.call(name).then(function(v) {
+      contractInstance.votosTotales.call(nombre).then(function(v) {
+
         $("#" + candidatos[nombre]).html(v.toString());
       });
     })
