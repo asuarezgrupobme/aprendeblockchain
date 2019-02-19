@@ -1,5 +1,6 @@
 package com.aprendeblockchain.miblockchainenjava.commons.estructuras;
 
+import com.aprendeblockchain.miblockchainenjava.commons.utilidades.UtilidadesFirma;
 import com.google.common.primitives.Longs;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -22,10 +23,10 @@ public class Transaccion {
     // Hash de la transacción e identificador único de ésta
     private byte[] hash;
 
-    // Dirección (hash de la clave pÃºblica) del emisor de la transacción
+    // Clave pública del emisor de la transacción
     private byte[] emisor;
 
-    // Dirección (hash de la clave pÃºblica) del destinatario de la transacción
+    // Clave pública del destinatario de la transacción
     private byte[] destinatario;
 
     // Valor a ser transferido
@@ -97,23 +98,49 @@ public class Transaccion {
         this.timestamp = timestamp;
     }
 
-    public byte[] getSignableData() {
-        return String.valueOf(cantidad).getBytes();
+    /**
+     * El contenido de la transaccion y que es firmado por el emisor con su clave pública
+     * @return byte[] Array de bytes representando el contenido de la transaccion
+     */
+    public byte[] getContenidoTransaccion() {
+    	byte[] contenido = ArrayUtils.addAll(String.valueOf(cantidad).getBytes());
+    	contenido = ArrayUtils.addAll(contenido, emisor);
+    	contenido = ArrayUtils.addAll(contenido, destinatario);
+    	contenido = ArrayUtils.addAll(contenido, firma);
+    	contenido = ArrayUtils.addAll(contenido, Longs.toByteArray(timestamp));        
+        return contenido;
     }
 
     /**
-     * Calcular el hash del contenido de la transacción
+     * Calcular el hash del contenido de la transacción y que pasa a ser el identificar de la transacción
      * @return Hash SHA256
      */
     public byte[] calcularHashTransaccion() {
-        byte[] infoTransaccion = ArrayUtils.addAll(String.valueOf(cantidad).getBytes());
-        infoTransaccion = ArrayUtils.addAll(infoTransaccion, emisor);
-        infoTransaccion = ArrayUtils.addAll(infoTransaccion, destinatario);
-        infoTransaccion = ArrayUtils.addAll(infoTransaccion, firma);
-        infoTransaccion = ArrayUtils.addAll(infoTransaccion, Longs.toByteArray(timestamp));
-        return DigestUtils.sha256(infoTransaccion);
+        return DigestUtils.sha256(getContenidoTransaccion());
     }
 
+    /**
+     * Comprobar si una transaccion es válida
+     * @return true si tiene un hash válido y la firma es válida
+     */
+    public boolean esValida() {
+        // verificar hash
+        if (!Arrays.equals(getHash(), calcularHashTransaccion())) {
+            return false;
+        }
+        
+        // verificar firma
+        try {
+            if (!UtilidadesFirma.validarFirma(getContenidoTransaccion(), getFirma(), emisor)) {
+                return false;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+
+        return true;
+    }
+    
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
