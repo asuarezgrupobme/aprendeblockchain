@@ -34,8 +34,9 @@ public class RestControllerBloques {
      * Obtener la cadena de bloques
      * @return JSON Lista de bloques
      */
-    @RequestMapping
+    @RequestMapping(method = RequestMethod.GET)
     CadenaDeBloques getCadenaDeBloques() {
+        System.out.println("Request: getCadenaDeBloques");
         return servicioBloques.getCadenaDeBloques();
     }
 

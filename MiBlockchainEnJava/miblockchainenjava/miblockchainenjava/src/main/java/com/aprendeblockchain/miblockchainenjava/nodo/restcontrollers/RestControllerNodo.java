@@ -31,8 +31,9 @@ public class RestControllerNodo {
      * Obtener la lista de nodos vecinos en la red
      * @return JSON lista de URLs
      */
-    @RequestMapping()
+    @RequestMapping(method = RequestMethod.GET)
     Set<URL> getNodosVecinos() {
+        System.out.println("Request: getNodosVecinos");
         return servicioNodo.getNodosVecinos();
     }
 
@@ -42,11 +43,12 @@ public class RestControllerNodo {
      */
     @RequestMapping(method = RequestMethod.POST)
     void altaNodo(@RequestBody String urlNodo, HttpServletResponse response) {
-        System.out.println("Alta nodo " + urlNodo);
+        System.out.println("Request: altaNodo " + urlNodo);
         try {
 			servicioNodo.altaNodo(new URL(urlNodo));
 	        response.setStatus(HttpServletResponse.SC_OK);
 		} catch (MalformedURLException e) {
+	        System.out.println("Error dando de alta nodo: " + e);
 	        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
     }
@@ -57,22 +59,24 @@ public class RestControllerNodo {
      */
     @RequestMapping(method = RequestMethod.DELETE)
     void bajaNodo(@RequestBody String urlNodo, HttpServletResponse response) {
-    	System.out.println("Baja nodo " + urlNodo);
+    	System.out.println("Request: bajaNodo " + urlNodo);
         try {
 			servicioNodo.bajaNodo(new URL(urlNodo));
 	        response.setStatus(HttpServletResponse.SC_OK);
 		} catch (MalformedURLException e) {
+	        System.out.println("Error dando de baja nodo: " + e);
 	        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
     }
 
     /**
-     * Obtener mi IP publica
+     * Devolver la IP desde la que recibo la peticion
      * @param request HttpServletRequest
      * @return la IP publica
      */
-    @RequestMapping(path = "ip")
+    @RequestMapping(path = "ip", method = RequestMethod.GET)
     String getIpPublica(HttpServletRequest request) {
+    	System.out.println("Request: getIpPublica");
         return request.getRemoteAddr();
     }
 

@@ -24,17 +24,14 @@ public final class Configuracion {
 	}
 	
 	public String getUrlNodoMaster() {
-		//return configuracion.xmlConfiguracion.getString("urlNodoMaster");
-		return "http://localhost:8080";
+		return configuracion.xmlConfiguracion.getString("urlNodoMaster");
 	}
 	
 	public int getMaxNumeroTransaccionesEnBloque() {
-		//return configuracion.xmlConfiguracion.getInt("maxTransaccionesPorBloque");
-		return 10;
+		return configuracion.xmlConfiguracion.getInt("maxTransaccionesPorBloque");
 	}
 	
 	public int getDificultad() {
-		//return configuracion.xmlConfiguracion.getInt("dificultad");
-		return 0;
+		return configuracion.xmlConfiguracion.getInt("dificultad");
 	}
 }

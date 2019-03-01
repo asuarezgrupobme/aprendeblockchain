@@ -1,10 +1,7 @@
 package com.aprendeblockchain.miblockchainenjava;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.net.URL;
 import java.security.KeyPair;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,7 +15,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import com.aprendeblockchain.miblockchainenjava.commons.estructuras.Bloque;
@@ -33,13 +29,6 @@ public class MiblockchainenjavaApplicationTests {
 
 	@Autowired
 	private MockMvc mvc;
-//
-//    @Test
-//    public void getHello() throws Exception {
-//        ResultActions result = mvc.perform(MockMvcRequestBuilders.get("/ip"));
-//        System.out.println(result.toString());
-//        result.andExpect(status().isOk()).andExpect(content().string(equalTo("Greetings from Spring Boot!")));
-//    }
 
 	public static String asJsonString(final Object obj) {
 		try {
@@ -101,12 +90,15 @@ public class MiblockchainenjavaApplicationTests {
 		tx.setFirma(UtilidadesFirma.firmar(tx.getContenidoTransaccion(), claveEmisor.getPrivate().getEncoded()));
 		tx.setHash(tx.calcularHashTransaccion());
 
+		System.out.println("Transaccion: " + asJsonString(tx));
 		mvc.perform(MockMvcRequestBuilders.post("/transaccion").content(asJsonString(tx))
 				.contentType(MediaType.APPLICATION_JSON));
 
 		List<Transaccion> transacciones = new ArrayList<Transaccion>(Arrays.asList(tx));
 		long nonce = 5;
 		Bloque bloque = new Bloque(null, transacciones, nonce);
+
+		System.out.println("Bloque: " + asJsonString(bloque));
 		mvc.perform(MockMvcRequestBuilders.post("/bloque").content(asJsonString(bloque))
 				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isAccepted());
 	}

@@ -33,7 +33,7 @@ public class RestControllerTransacciones {
      * Obtener el pool de transacciones pendientes de ser incluidas en un bloque
      * @return JSON pool de transacciones
      */
-    @RequestMapping
+    @RequestMapping(method = RequestMethod.GET)
     PoolTransacciones getPoolTransacciones() {
         return servicioTransacciones.getPoolTransacciones();
     }
