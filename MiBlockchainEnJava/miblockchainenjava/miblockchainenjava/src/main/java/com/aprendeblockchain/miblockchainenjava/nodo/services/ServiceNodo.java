@@ -38,8 +38,8 @@ public class ServiceNodo implements ApplicationListener<WebServerInitializedEven
 
 	/**
 	 * Al iniciar el nodo tenemos que: - Obtener la lista de nodos en la red -
-	 * Cadena de bloques - Transactiones en el pool - Dar de alta mi nodo en el
-	 * resto de nodos
+	 * Obtener la cadena de bloques - Obtener transactiones en el pool - Dar de alta
+	 * mi nodo en el resto de nodos
 	 * 
 	 * @param webServerInitializedEvent WebServer para obtener el puerto
 	 */
@@ -62,8 +62,8 @@ public class ServiceNodo implements ApplicationListener<WebServerInitializedEven
 
 			// obtener lista de nodos, bloques y transacciones
 			obtenerNodosVecinos(urlNodoMaster, restTemplate);
-            servicioBloques.obtenerCadenaDeBloques(urlNodoMaster, restTemplate);
-            servicioTransacciones.obtenerPoolTransacciones(urlNodoMaster, restTemplate);
+			servicioBloques.obtenerCadenaDeBloques(urlNodoMaster, restTemplate);
+			servicioTransacciones.obtenerPoolTransacciones(urlNodoMaster, restTemplate);
 
 			// dar de alta mi nodo en el resto de nodos en la red
 			emitirPeticionPostNodosVecinos("nodo", miUrlNodo);
@@ -102,9 +102,9 @@ public class ServiceNodo implements ApplicationListener<WebServerInitializedEven
 	}
 
 	/**
-	 * Enviar petici�n de tipo PUT al resto de nodos en la red (nodos vecinos)
+	 * Enviar petición de tipo PUT al resto de nodos en la red (nodos vecinos)
 	 * 
-	 * @param endpoint el endpoint para esta petici�n
+	 * @param endpoint el endpoint para esta petición
 	 * @param datos    los datos que se quieren enviar con la peticion
 	 */
 	public void emitirPeticionPutNodosVecinos(String endpoint, Object datos) {
@@ -112,9 +112,9 @@ public class ServiceNodo implements ApplicationListener<WebServerInitializedEven
 	}
 
 	/**
-	 * Enviar petici�n de tipo POST al resto de nodos en la red (nodos vecinos)
+	 * Enviar petición de tipo POST al resto de nodos en la red (nodos vecinos)
 	 * 
-	 * @param endpoint el endpoint para esta petici�n
+	 * @param endpoint el endpoint para esta petición
 	 * @param datos    los datos que se quieren enviar con la peticion
 	 */
 	public void emitirPeticionPostNodosVecinos(String endpoint, Object data) {
@@ -122,9 +122,9 @@ public class ServiceNodo implements ApplicationListener<WebServerInitializedEven
 	}
 
 	/**
-	 * Enviar petici�n de tipo DELETE al resto de nodos en la red (nodos vecinos)
+	 * Enviar petición de tipo DELETE al resto de nodos en la red (nodos vecinos)
 	 * 
-	 * @param endpoint el endpoint para esta petici�n
+	 * @param endpoint el endpoint para esta petición
 	 * @param datos    los datos que se quieren enviar con la peticion
 	 */
 	public void emitirPetitionDeleteNodosVecinos(String endpoint, Object data) {

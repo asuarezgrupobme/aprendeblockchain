@@ -20,6 +20,14 @@ public class PoolTransacciones {
 		this.pool.addAll(transacciones);
 	}
 	
+	public Set<Transaccion> getPool() {
+		return this.pool;
+	}
+	
+	public void setPool(Set<Transaccion> pool) {
+		this.pool = pool;
+	}
+	
 	/**
      * Añadir una transaccion al pool
      * @param transaccion Transaccion a ser añadida

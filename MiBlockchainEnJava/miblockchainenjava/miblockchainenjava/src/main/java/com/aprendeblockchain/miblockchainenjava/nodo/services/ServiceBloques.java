@@ -51,7 +51,7 @@ public class ServiceBloques {
 	 * @param restTemplate RestTemplate a usar
 	 */
 	public void obtenerCadenaDeBloques(URL urlNodo, RestTemplate restTemplate) {
-		CadenaDeBloques cadena = restTemplate.getForObject(urlNodo + "/cadena", CadenaDeBloques.class);
+		CadenaDeBloques cadena = restTemplate.getForObject(urlNodo + "/bloque", CadenaDeBloques.class);
 		this.cadenaDeBloques = cadena;
 		System.out.println("Obtenida cadena de bloques de nodo " + urlNodo);
 	}

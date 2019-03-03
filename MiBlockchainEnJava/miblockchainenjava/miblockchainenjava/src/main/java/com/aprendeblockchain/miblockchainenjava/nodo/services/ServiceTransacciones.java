@@ -62,5 +62,6 @@ public class ServiceTransacciones {
 	public void obtenerPoolTransacciones(URL urlNodo, RestTemplate restTemplate) {
 		PoolTransacciones poolTransacciones = restTemplate.getForObject(urlNodo + "/transaccion", PoolTransacciones.class);
 		this.poolTransacciones = poolTransacciones;
+		System.out.println("Obtenido pool de transacciones de nodo " + urlNodo);
 	}
 }

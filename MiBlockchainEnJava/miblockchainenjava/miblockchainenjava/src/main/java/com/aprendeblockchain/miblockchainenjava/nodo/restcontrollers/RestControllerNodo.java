@@ -42,15 +42,10 @@ public class RestControllerNodo {
      * @param nodo a ser dado de alta
      */
     @RequestMapping(method = RequestMethod.POST)
-    void altaNodo(@RequestBody String urlNodo, HttpServletResponse response) {
+    void altaNodo(@RequestBody URL urlNodo, HttpServletResponse response) {
         System.out.println("Request: altaNodo " + urlNodo);
-        try {
-			servicioNodo.altaNodo(new URL(urlNodo));
-	        response.setStatus(HttpServletResponse.SC_OK);
-		} catch (MalformedURLException e) {
-	        System.out.println("Error dando de alta nodo: " + e);
-	        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		}
+        servicioNodo.altaNodo(urlNodo);
+        response.setStatus(HttpServletResponse.SC_OK);
     }
 
     /**
@@ -58,19 +53,14 @@ public class RestControllerNodo {
      * @param nodo a ser dado de baja
      */
     @RequestMapping(method = RequestMethod.DELETE)
-    void bajaNodo(@RequestBody String urlNodo, HttpServletResponse response) {
+    void bajaNodo(@RequestBody URL urlNodo, HttpServletResponse response) {
     	System.out.println("Request: bajaNodo " + urlNodo);
-        try {
-			servicioNodo.bajaNodo(new URL(urlNodo));
-	        response.setStatus(HttpServletResponse.SC_OK);
-		} catch (MalformedURLException e) {
-	        System.out.println("Error dando de baja nodo: " + e);
-	        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		}
+		servicioNodo.bajaNodo(urlNodo);
+	    response.setStatus(HttpServletResponse.SC_OK);
     }
 
     /**
-     * Devolver la IP desde la que recibo la peticion
+     * Endpoint auxiliar para que un nodo pueda conocer su IP publica y con la que otros nodos se comunicarán con él
      * @param request HttpServletRequest
      * @return la IP publica
      */
