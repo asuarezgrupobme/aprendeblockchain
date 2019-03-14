@@ -1,6 +1,7 @@
 package com.aprendeblockchain.miblockchainenjava.commons.estructuras;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /*
@@ -10,20 +11,25 @@ public class CadenaDeBloques {
 
 	// Lista de bloques en la cadena ordenados por altura
 	private List<Bloque> bloques = new ArrayList<Bloque>();
+	// Saldos actuales de las cuentas
+	private RegistroSaldos saldos = new RegistroSaldos();
 
 	public CadenaDeBloques() {
 	}
 
-	public CadenaDeBloques(List<Bloque> bloques) {
-		this.bloques = bloques;
+	public CadenaDeBloques(CadenaDeBloques cadena) throws Exception {
+		this.setBloques(cadena.getBloques());
 	}
 
 	public List<Bloque> getBloques() {
 		return bloques;
 	}
 
-	public void setBloques(List<Bloque> bloques) {
-		this.bloques = bloques;
+	public void setBloques(List<Bloque> bloques) throws Exception {
+		this.bloques = new ArrayList<Bloque>();
+		for (Bloque bloque : bloques) {
+			this.añadirBloque(bloque);
+		}
 	}
 
 	public boolean estaVacia() {
@@ -34,21 +40,43 @@ public class CadenaDeBloques {
 		return (estaVacia() ? 0 : this.bloques.size());
 	}
 
+	public RegistroSaldos getSaldos() {
+		return this.saldos;
+	}
+
 	/**
-     * Obtener el ultimo bloque en la cadena
-     * @return Ultimo bloque de la cadena
-     */
-    public Bloque getUltimoBloque() {
-        if (estaVacia()) {
-            return null;
-        }
-        return this.bloques.get(this.bloques.size() - 1);
-    }
-    
-    public void añadirBloque(Bloque bloque) {
-    	this.bloques.add(bloque);
-    }
-    
+	 * Obtener el ultimo bloque en la cadena
+	 * 
+	 * @return Ultimo bloque de la cadena
+	 */
+	public Bloque getUltimoBloque() {
+		if (estaVacia()) {
+			return null;
+		}
+		return this.bloques.get(this.bloques.size() - 1);
+	}
+
+	/**
+	 * Añadir un bloque a la cadena
+	 * @param bloque a ser añadido
+	 * @throws Exception
+	 */
+	public void añadirBloque(Bloque bloque) throws Exception {
+
+		// iteramos y procesamos las transacciones. Si todo es correcto lo añadimos a la cadena
+		Iterator<Transaccion> itr = bloque.getTransacciones().iterator();
+
+		while (itr.hasNext()) {
+			Transaccion transaccion = (Transaccion) itr.next();
+			// actualizar saldos
+			saldos.liquidarTransaccion(transaccion);
+		}
+
+		this.bloques.add(bloque);
+
+		System.out.println(saldos.toString() + "\n");
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o)

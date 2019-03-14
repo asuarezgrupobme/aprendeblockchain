@@ -2,6 +2,7 @@ package com.aprendeblockchain.miblockchainenjava.nodo.services;
 
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Iterator;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,13 +10,15 @@ import org.springframework.web.client.RestTemplate;
 
 import com.aprendeblockchain.miblockchainenjava.commons.estructuras.Bloque;
 import com.aprendeblockchain.miblockchainenjava.commons.estructuras.CadenaDeBloques;
+import com.aprendeblockchain.miblockchainenjava.commons.estructuras.RegistroSaldos;
+import com.aprendeblockchain.miblockchainenjava.commons.estructuras.Transaccion;
 import com.aprendeblockchain.miblockchainenjava.Configuracion;
 
 @Service
 public class ServiceBloques {
 
 	private final ServiceTransacciones servicioTransacciones;
-
+	
 	private CadenaDeBloques cadenaDeBloques = new CadenaDeBloques();
 
 	@Autowired
@@ -28,20 +31,24 @@ public class ServiceBloques {
 	}
 
 	/**
-	 * A�adir un bloque a la cadena
+	 * Añadir un bloque a la cadena
 	 * 
-	 * @param bloque Bloque a ser a�adido
+	 * @param bloque Bloque a ser añadido
 	 * @return true si el bloque pasa la validacion y es a�adida a la cadena
+	 * @throws Exception 
 	 */
-	public synchronized boolean añadirBloque(Bloque bloque) {
+	public synchronized void añadirBloque(Bloque bloque) throws Exception {
 		if (validarBloque(bloque)) {
 			this.cadenaDeBloques.añadirBloque(bloque);
-
-			// eliminar las transacciones incluidas en el bloque del pool de transacciones
-			bloque.getTransacciones().forEach(servicioTransacciones::eliminarTransaccion);
-			return true;
+			
+			// eliminar transacciones del pool excepto primer tx que es la coinbase
+			bloque.getTransacciones().subList(1, bloque.getTransacciones().size()).forEach(servicioTransacciones::eliminarTransaccion);
+			
+			System.out.println("Bloque añadido a cadena de bloques.\n");
 		}
-		return false;
+		else {
+			throw new Exception("Bloque inválido");
+		}
 	}
 
 	/**
@@ -52,12 +59,16 @@ public class ServiceBloques {
 	 */
 	public void obtenerCadenaDeBloques(URL urlNodo, RestTemplate restTemplate) {
 		CadenaDeBloques cadena = restTemplate.getForObject(urlNodo + "/bloque", CadenaDeBloques.class);
-		this.cadenaDeBloques = cadena;
-		System.out.println("Obtenida cadena de bloques de nodo " + urlNodo);
+		System.out.println("Obtenida cadena de bloques de nodo " + urlNodo + ".\n");
+		try {
+			this.cadenaDeBloques = new CadenaDeBloques(cadena);
+		} catch (Exception e) {
+			System.out.println("Cadena de bloques inválida");
+		}
 	}
 
 	/**
-	 * Validar un bloque a ser a�adido a la cadena
+	 * Validar un bloque a ser añadido a la cadena
 	 * 
 	 * @param bloque Bloque a ser validado
 	 */
@@ -71,34 +82,34 @@ public class ServiceBloques {
 		if (!cadenaDeBloques.estaVacia()) {
 			byte[] hashUltimoBloque = cadenaDeBloques.getUltimoBloque().getHash();
 			if (!Arrays.equals(bloque.getHashBloqueAnterior(), hashUltimoBloque)) {
-				System.out.println("Bloque anterior invalido");
+				System.out.println("Hash bloque anterior no coincide.");
 				return false;
 			}
 		} else {
 			if (bloque.getHashBloqueAnterior() != null) {
-				System.out.println("Bloque anterior invalido");
+				System.out.println("Hash bloque anterior inválido. Debería ser null.");
 				return false;
 			}
 		}
 
 		// max. numero de transacciones en un bloque
-		if (bloque.getTransacciones().size() > Configuracion.getInstancia().getMaxNumeroTransaccionesEnBloque()) {
-			System.out.println("Numero de transacciones supera el limite.");
+		if (bloque.getTransacciones().size() > Configuracion.getInstancia().getMaxNumeroTransaccionesEnBloque() + 1) {
+			System.out.println("El número de transacciones supera el limite.");
 			return false;
 		}
 
 		// verificar que todas las transacciones estaban en mi pool
-		if (!servicioTransacciones.contieneTransacciones(bloque.getTransacciones())) {
-			System.out.println("Algunas transacciones no en pool");
+		if (!servicioTransacciones.contieneTransacciones(bloque.getTransacciones().subList(1, bloque.getTransacciones().size()))) {
+			System.out.println("Algunas transacciones no están en pool");
 			return false;
 		}
 
 		// la dificultad coincide
-		if(bloque.getNumeroDeCerosHash() < Configuracion.getInstancia().getDificultad()) {
+		if (bloque.getNumeroDeCerosHash() < Configuracion.getInstancia().getDificultad()) {
 			System.out.println("Bloque con dificultad inválida");
 			return false;
 		}
-		
+
 		return true;
 	}
 }

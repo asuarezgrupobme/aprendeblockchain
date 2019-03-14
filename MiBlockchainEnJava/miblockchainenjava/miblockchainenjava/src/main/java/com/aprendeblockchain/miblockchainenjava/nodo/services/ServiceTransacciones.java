@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.aprendeblockchain.miblockchainenjava.commons.estructuras.PoolTransacciones;
+import com.aprendeblockchain.miblockchainenjava.commons.estructuras.RegistroSaldos;
 import com.aprendeblockchain.miblockchainenjava.commons.estructuras.Transaccion;
 
 @Service
@@ -15,7 +16,7 @@ public class ServiceTransacciones {
 
 	// Pool de transacciones con transacciones pendientes de ser incluidas en un bloque
 	private PoolTransacciones poolTransacciones = new PoolTransacciones();
-
+	
 	@Autowired
 	public ServiceTransacciones() {
 	}
@@ -28,10 +29,10 @@ public class ServiceTransacciones {
 	 * A�adir transaccion al pool
 	 * 
 	 * @param transaccion Transaccion a ser añadida
-	 * @return true si la transaccion es valida y es a�adida al pool
+	 * @throws Exception 
 	 */
-	public synchronized boolean añadirTransaccion(Transaccion transaccion) {        
-		return poolTransacciones.añadirTransaccion(transaccion);
+	public synchronized void añadirTransaccion(Transaccion transaccion) throws Exception {   
+		poolTransacciones.añadirTransaccion(transaccion);
 	}
 
 	/**
@@ -62,6 +63,6 @@ public class ServiceTransacciones {
 	public void obtenerPoolTransacciones(URL urlNodo, RestTemplate restTemplate) {
 		PoolTransacciones poolTransacciones = restTemplate.getForObject(urlNodo + "/transaccion", PoolTransacciones.class);
 		this.poolTransacciones = poolTransacciones;
-		System.out.println("Obtenido pool de transacciones de nodo " + urlNodo);
+		System.out.println("Obtenido pool de transacciones de nodo " + urlNodo + ".\n");
 	}
 }

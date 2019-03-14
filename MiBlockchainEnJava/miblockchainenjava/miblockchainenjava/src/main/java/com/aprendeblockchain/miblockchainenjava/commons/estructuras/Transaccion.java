@@ -7,6 +7,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
+import com.aprendeblockchain.miblockchainenjava.Configuracion;
 import com.aprendeblockchain.miblockchainenjava.commons.utilidades.UtilidadesFirma;
 import com.google.common.primitives.Longs;
 
@@ -22,146 +23,200 @@ import com.google.common.primitives.Longs;
 
 public class Transaccion {
 
-    // Hash de la transacción e identificador único de esta
-    private byte[] hash;
+	// Hash de la transacción e identificador único de esta
+	private byte[] hash;
 
-    // Clave pública del emisor de la transacción
-    private byte[] emisor;
+	// Clave pública del emisor de la transacción
+	private byte[] emisor;
 
-    // Clave pública del destinatario de la transacción
-    private byte[] destinatario;
+	// Clave pública del destinatario de la transacción
+	private byte[] destinatario;
 
-    // Valor a ser transferido
-    private double cantidad;
+	// Valor a ser transferido
+	private double cantidad;
 
-    // Firma con la clave privada para verificar que la transacción fue realmente enviada por el emisor
-    private byte[] firma;
+	// Firma con la clave privada para verificar que la transacción fue realmente
+	// enviada por el emisor
+	private byte[] firma;
 
-    // Timestamp de la creación de la transacción en milisegundos desde el 1/1/1970
-    private long timestamp;
+	// Timestamp de la creación de la transacción en milisegundos desde el 1/1/1970
+	private long timestamp;
 
-    public Transaccion() {
-    }
+	private boolean esCoinbase;
 
-    public Transaccion(byte[] emisor, byte[] receptor, double cantidad, byte[] firma) {
-        this.emisor = emisor;
-        this.destinatario = receptor;
-        this.cantidad = cantidad;
-        this.firma = firma;
-        this.timestamp = System.currentTimeMillis();
-        this.hash = calcularHashTransaccion();
-    }
+	public Transaccion() {
+	}
 
-    public byte[] getHash() {
-        return hash;
-    }
+	public Transaccion(byte[] emisor, byte[] receptor, double cantidad, byte[] firma) {
+		this.esCoinbase = false;
+		this.emisor = emisor;
+		this.destinatario = receptor;
+		this.cantidad = cantidad;
+		this.firma = firma;
+		this.timestamp = System.currentTimeMillis();
+		this.hash = calcularHashTransaccion();
+	}
 
-    public void setHash(byte[] hash) {
-        this.hash = hash;
-    }
+	// coinbase
+	public Transaccion(byte[] receptor) {
+		this.esCoinbase = true;
+		this.destinatario = receptor;
+		this.cantidad = Configuracion.getInstancia().getCantidadCoinbase();
+		this.timestamp = System.currentTimeMillis();
+		this.hash = calcularHashTransaccion();
+	}
 
-    public byte[] getEmisor() {
-        return emisor;
-    }
+	public byte[] getHash() {
+		return hash;
+	}
 
-    public void setEmisor(byte[] emisor) {
-        this.emisor = emisor;
-    }
+	public void setHash(byte[] hash) {
+		this.hash = hash;
+	}
 
-    public byte[] getDestinatario() {
-        return destinatario;
-    }
+	public byte[] getEmisor() {
+		return emisor;
+	}
 
-    public void setDestinatario(byte[] destinatario) {
-        this.destinatario = destinatario;
-    }
+	public void setEmisor(byte[] emisor) {
+		this.emisor = emisor;
+	}
 
-    public double getCantidad() {
-        return cantidad;
-    }
+	public byte[] getDestinatario() {
+		return destinatario;
+	}
 
-    public void setCantidad(double cantidad) {
-        this.cantidad = cantidad;
-    }
+	public void setDestinatario(byte[] destinatario) {
+		this.destinatario = destinatario;
+	}
 
-    public byte[] getFirma() {
-        return firma;
-    }
+	public double getCantidad() {
+		return cantidad;
+	}
 
-    public void setFirma(byte[] firma) {
-        this.firma = firma;
-    }
+	public void setCantidad(double cantidad) {
+		this.cantidad = cantidad;
+	}
 
-    public long getTimestamp() {
-        return timestamp;
-    }
+	public byte[] getFirma() {
+		return firma;
+	}
 
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
+	public void setFirma(byte[] firma) {
+		this.firma = firma;
+	}
 
-    /**
-     * El contenido de la transaccion y que es firmado por el emisor con su clave pública
-     * @return byte[] Array de bytes representando el contenido de la transaccion
-     */
-    public byte[] getContenidoTransaccion() {
-    	byte[] contenido = ArrayUtils.addAll(String.valueOf(cantidad).getBytes());
-    	contenido = ArrayUtils.addAll(contenido, emisor);
-    	contenido = ArrayUtils.addAll(contenido, destinatario);
-    	contenido = ArrayUtils.addAll(contenido, Longs.toByteArray(timestamp));        
-        return contenido;
-    }
+	public long getTimestamp() {
+		return timestamp;
+	}
 
-    /**
-     * Calcular el hash del contenido de la transacción y que pasa a ser el identificar de la transacción
-     * @return Hash SHA256
-     */
-    public byte[] calcularHashTransaccion() {
-        return DigestUtils.sha256(getContenidoTransaccion());
-    }
+	public void setTimestamp(long timestamp) {
+		this.timestamp = timestamp;
+	}
 
-    /**
-     * Comprobar si una transaccion es válida
-     * @return true si tiene un hash válido y la firma es válida
-     */
-    public boolean esValida() {
+	public boolean getEsCoinbase() {
+		return esCoinbase;
+	}
 
-        // verificar hash
-        if (!Arrays.equals(getHash(), calcularHashTransaccion())) {
-        	System.out.println("Hash de transacción inválido");
-            return false;
-        }
+	public void setEsCoinbase(boolean esCoinbase) {
+		this.esCoinbase = esCoinbase;
+	}
 
-        // verificar firma
-        try {
-            if (!UtilidadesFirma.validarFirma(getContenidoTransaccion(), getFirma(), emisor)) {
-            	System.out.println("Firma de transacción inválida");
-                return false;
-            }
-        } catch (Exception e) {
-            return false;
-        }
+	/**
+	 * El contenido de la transaccion y que es firmado por el emisor con su clave
+	 * pública
+	 * 
+	 * @return byte[] Array de bytes representando el contenido de la transaccion
+	 */
+	public byte[] getContenidoTransaccion() {
+		byte[] contenido = ArrayUtils.addAll(String.valueOf(cantidad).getBytes());
+		contenido = ArrayUtils.addAll(contenido, emisor);
+		contenido = ArrayUtils.addAll(contenido, destinatario);
+		contenido = ArrayUtils.addAll(contenido, Longs.toByteArray(timestamp));
+		return contenido;
+	}
 
-        return true;
-    }
-    
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+	/**
+	 * Calcular el hash del contenido de la transacción y que pasa a ser el
+	 * identificar de la transacción
+	 * 
+	 * @return Hash SHA256
+	 */
+	public byte[] calcularHashTransaccion() {
+		return DigestUtils.sha256(getContenidoTransaccion());
+	}
 
-        Transaccion tr = (Transaccion) o;
+	/**
+	 * Comprobar si una transaccion es válida
+	 * 
+	 * @return true si tiene un hash válido y la firma es válida
+	 */
+	public boolean esValida() {
 
-        return Arrays.equals(hash, tr.hash);
-    }
+		if (this.destinatario == null) {
+			System.out.println("Destinatario inválido");
+			return false;
+		}
 
-    @Override
-    public int hashCode() {
-        return Arrays.hashCode(hash);
-    }
+		if (this.cantidad > 0) {
+			System.out.println("Cantidad inválida");
+			return false;
+		}
 
-    @Override
-    public String toString() {
-        return "{" + Base64.encodeBase64String(hash) + ", " + Base64.encodeBase64String(emisor) + ", " + Base64.encodeBase64String(destinatario) + ", " + cantidad + ", " + Base64.encodeBase64String(firma) + ", " + new Date(timestamp) + "}";
-    }
+		if (this.firma == null) {
+			System.out.println("Firma inválida");
+			return false;
+		}
+		// verificar hash
+		if (!Arrays.equals(getHash(), calcularHashTransaccion())) {
+			System.out.println("Hash de transacción inválido");
+			return false;
+		}
+
+		// no coinbase tx
+		if (!this.esCoinbase) {
+			if (this.emisor == null) {
+				System.out.println("Emisor inválido");
+				return false;
+			}
+
+			// verificar firma
+			if (!UtilidadesFirma.validarFirma(getContenidoTransaccion(), getFirma(), emisor)) {
+				System.out.println("Firma de transacción inválida");
+				return false;
+			}
+		}
+		// coinbase tx
+		else {
+			if (this.cantidad != Configuracion.getInstancia().getCantidadCoinbase()) {
+				System.out.println("Cantidad inválida");
+				return false;
+			}
+		}
+		return true;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+
+		Transaccion tr = (Transaccion) o;
+
+		return Arrays.equals(hash, tr.hash);
+	}
+
+	@Override
+	public int hashCode() {
+		return Arrays.hashCode(hash);
+	}
+
+	@Override
+	public String toString() {
+		return "{\nHash: " + Base64.encodeBase64String(hash) + ",\nEmisor: " + Base64.encodeBase64String(emisor) + ",\nDestinatario: "
+				+ Base64.encodeBase64String(destinatario) + ",\nCantidad: " + cantidad + ",\nFirma: " + Base64.encodeBase64String(firma)
+				+ ",\nTimestamp: " + new Date(timestamp) + "\n}";
+	}
 }

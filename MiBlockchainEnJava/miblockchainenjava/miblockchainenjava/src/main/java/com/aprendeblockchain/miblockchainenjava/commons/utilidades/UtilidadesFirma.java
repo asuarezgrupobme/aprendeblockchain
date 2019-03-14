@@ -51,18 +51,22 @@ public abstract class UtilidadesFirma {
 	 *                     fueron firmados los datos
 	 * @return true si la firma es valida para los datos y clave publica dados
 	 */
-	public static boolean validarFirma(byte[] info, byte[] firma, byte[] clavePublica) throws InvalidKeySpecException,
-			NoSuchProviderException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
-		
+	public static boolean validarFirma(byte[] info, byte[] firma, byte[] clavePublica) {
+
 		// crear un objeto PublicKey con la clave publica dada
 		X509EncodedKeySpec keySpec = new X509EncodedKeySpec(clavePublica);
-		PublicKey publicKeyObj = keyFactory.generatePublic(keySpec);
+		PublicKey publicKeyObj;
+		try {
+			publicKeyObj = keyFactory.generatePublic(keySpec);
 
-		// validar firma
-		Signature sig = getInstanciaSignature();
-		sig.initVerify(publicKeyObj);
-		sig.update(info);
-		return sig.verify(firma);
+			// validar firma
+			Signature sig = getInstanciaSignature();
+			sig.initVerify(publicKeyObj);
+			sig.update(info);
+			return sig.verify(firma);
+		} catch (Exception e) {
+			return false;
+		}
 	}
 
 	/**

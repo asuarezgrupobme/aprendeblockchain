@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.aprendeblockchain.miblockchainenjava.commons.estructuras.PoolTransacciones;
+import com.aprendeblockchain.miblockchainenjava.commons.estructuras.RegistroSaldos;
 import com.aprendeblockchain.miblockchainenjava.commons.estructuras.Transaccion;
 import com.aprendeblockchain.miblockchainenjava.nodo.services.ServiceNodo;
 import com.aprendeblockchain.miblockchainenjava.nodo.services.ServiceTransacciones;
@@ -37,7 +38,7 @@ public class RestControllerTransacciones {
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
     PoolTransacciones getPoolTransacciones() {
-    	System.out.println("Request: getPoolTransacciones");
+    	System.out.println("PETICION POOL DE TRANSACCIONES\n");
         return servicioTransacciones.getPoolTransacciones();
     }
 
@@ -45,24 +46,30 @@ public class RestControllerTransacciones {
     /**
      * Añadir una transaccion al pool
      * @param transaccion Transaccion a ser añaadida
-     * @param propagar si la transacción debe ser propaga a otros nodos en la red
-     * @param response código 202 si la transacci�n es a�adida al pool, 406 en otro caso
+     * @param propagar si la transacción debe ser propagada a otros nodos en la red
+     * @param response código 202 si la transacción es añadida al pool, 406 en otro caso
      */
     @RequestMapping(method = RequestMethod.POST)
     void añadirTransaccion(@RequestBody Transaccion transaccion, @RequestParam(required = false) Boolean propagar, HttpServletResponse response) {
-        System.out.println("Request: Añadir transaccion " + Base64.encodeBase64String(transaccion.getHash()));
-        boolean exito = servicioTransacciones.añadirTransaccion(transaccion);
-
-        if (exito) {
-            System.out.println("Transaccion validada y añadida.");
+        System.out.println("NUEVA TRANSACCION RECIBIDA:");
+        System.out.println(transaccion);
+        System.out.println("\n");
+        try {
+        	//comprobar si la transacción es válida
+        	servicioTransacciones.añadirTransaccion(transaccion);
+        	
+            System.out.println("Transaccion añadida al pool.\n");
             response.setStatus(HttpServletResponse.SC_ACCEPTED);
 
             if (propagar != null && propagar) {
                 servicioNodo.emitirPeticionPostNodosVecinos("transaccion", transaccion);
+                System.out.println("Transaccion propagada.\n");
             }
-        } else {
-            System.out.println("Transaccion invalida y no añadida.");
+        }
+        catch(Exception ex) {
+            System.out.println(ex.getMessage());
             response.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
+        	
         }
     }
 

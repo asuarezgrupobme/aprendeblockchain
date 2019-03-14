@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <configuracion>
-  <urlNodoMaster>http://localhost:8080</urlNodoMaster>
-  <dificultad>0</dificultad>
+  <urlNodoMaster>http://localhost:9080</urlNodoMaster>
+  <dificultad>3</dificultad>
   <maxTransaccionesPorBloque>10</maxTransaccionesPorBloque>
+  <minar>true</minar>
+  <coinbase>MIIBtzCCASwGByqGSM44BAEwggEfAoGBAP1/U4EddRIpUt9KnC7s5Of2EbdSPO9EAMMeP4C2USZpRV1AIlH7WT2NWPq/xfW6MPbLm1Vs14E7gB00b/JmYLdrmVClpJ+f6AR7ECLCT7up1/63xhv4O1fnxqimFQ8E+4P208UewwI1VBNaFpEy9nXzrith1yrv8iIDGZ3RSAHHAhUAl2BQjxUjC8yykrmCouuEC/BYHPUCgYEA9+GghdabPd7LvKtcNrhXuXmUr7v6OuqC+VdMCz0HgmdRWVeOutRZT+ZxBxCBgLRJFnEj6EwoFhO3zwkyjMim4TwWeotUfI0o4KOuHiuzpnWRbqN/C/ohNWLx+2J6ASQ7zKTxvqhRkImog9/hWuWfBpKLZl6Ae1UlZAFMO/7PSSoDgYQAAoGAF7nrdQLVsvPISURtAVDJqUuN4Xq5f2QXN79QiUnETkwvdMxyU9hh03k/Uuc8gg3kFZrudaR+k0VYJJFtVTpZXniolxFlZ1DgLpcABOy8Qa73ZQleDgdN9E9/fsBeOwHOvoVEYUzPYaLMABCwr0IAgoVYFM3DZSrT28koV6H7wVM=</coinbase>
+  <cantidadCoinbase>10</cantidadCoinbase>
 </configuracion>

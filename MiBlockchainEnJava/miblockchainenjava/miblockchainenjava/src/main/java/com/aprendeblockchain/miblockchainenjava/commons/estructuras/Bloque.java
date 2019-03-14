@@ -149,7 +149,32 @@ public class Bloque {
 		return getHash().length;
 	}
 
-	public boolean esValido() {
+	public boolean esValido() {		
+		if(this.hash == null) {
+			System.out.println("Hash inválido");
+			return false;
+		}
+		
+		if(this.hashBloqueAnterior != null && this.nonce <= 0) {
+			System.out.println("Nonce inválido");
+			return false;
+		}
+		
+		if(this.raizArbolMerkle == null) {
+			System.out.println("Merkle inválido");
+			return false;
+		}
+		
+		if(this.transacciones == null || this.transacciones.size() == 0) {
+			System.out.println("Bloque sin transacciones");
+			return false;
+		}
+		
+		if(!this.transacciones.get(0).getEsCoinbase()) {
+			System.out.println("Primera transaccion no es coinbase");
+			return false;
+		}
+
 		// la raiz del arbol de Merkle coincide
 		if (!Arrays.equals(getRaizArbolMerkle(), calcularRaizArbolMerkle())) {
 			System.out.println("Raiz Merkle inválida");
@@ -184,6 +209,6 @@ public class Bloque {
 
     @Override
     public String toString() {
-        return "{Hash:" + Base64.encodeBase64String(hash) + ", Previo:" + Base64.encodeBase64String(hashBloqueAnterior) + ", RaizMerkle:" + Base64.encodeBase64String(raizArbolMerkle) + ", Nonce:" + nonce + ", Timestamp:" + new Date(timestamp) + ", Transacciones:" + transacciones.toString() + "}";
+        return "{\nHash:" + Base64.encodeBase64String(hash) + ",\nBloque anterior:" + Base64.encodeBase64String(hashBloqueAnterior) + ",\nRaiz Merkle:" + Base64.encodeBase64String(raizArbolMerkle) + ",\nNonce:" + nonce + ",\nTimestamp:" + new Date(timestamp) + ",\nTransacciones:\n" + transacciones.toString() + "\n}";
     }
 }

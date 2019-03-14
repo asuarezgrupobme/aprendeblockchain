@@ -31,14 +31,17 @@ public class PoolTransacciones {
 	/**
      * Añadir una transaccion al pool
      * @param transaccion Transaccion a ser añadida
+	 * @return 
      * @return true si la transaccion es válida y es añadida al pool
+	 * @throws Exception 
      */
-    public synchronized boolean añadirTransaccion (Transaccion transaccion) {
+    public synchronized void añadirTransaccion (Transaccion transaccion) throws Exception {
         if (transaccion.esValida()) {
         	pool.add(transaccion);
-            return true;
         }
-        return false;
+        else {
+        	throw new Exception("Transacción inválida");
+        }
     }    
 
     /**
@@ -57,4 +60,8 @@ public class PoolTransacciones {
     public boolean contieneTransacciones(Collection<Transaccion> transacciones) {
         return pool.containsAll(transacciones);
     }
+
+	public boolean estaVacio() {
+		return this.pool == null || this.pool.isEmpty();
+	}
 }

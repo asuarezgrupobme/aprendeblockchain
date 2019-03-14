@@ -1,6 +1,5 @@
 package com.aprendeblockchain.miblockchainenjava.nodo.restcontrollers;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Set;
 
@@ -13,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.aprendeblockchain.miblockchainenjava.Configuracion;
+import com.aprendeblockchain.miblockchainenjava.nodo.services.ServiceMinado;
 import com.aprendeblockchain.miblockchainenjava.nodo.services.ServiceNodo;
 
 
@@ -45,7 +46,7 @@ public class RestControllerNodo {
     void altaNodo(@RequestBody URL urlNodo, HttpServletResponse response) {
         System.out.println("Request: altaNodo " + urlNodo);
         servicioNodo.altaNodo(urlNodo);
-        response.setStatus(HttpServletResponse.SC_OK);
+		response.setStatus(HttpServletResponse.SC_OK);
     }
 
     /**
@@ -56,7 +57,7 @@ public class RestControllerNodo {
     void bajaNodo(@RequestBody URL urlNodo, HttpServletResponse response) {
     	System.out.println("Request: bajaNodo " + urlNodo);
 		servicioNodo.bajaNodo(urlNodo);
-	    response.setStatus(HttpServletResponse.SC_OK);
+        response.setStatus(HttpServletResponse.SC_OK);
     }
 
     /**

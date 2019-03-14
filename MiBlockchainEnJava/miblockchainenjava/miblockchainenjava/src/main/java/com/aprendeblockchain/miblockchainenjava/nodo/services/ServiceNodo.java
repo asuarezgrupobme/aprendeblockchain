@@ -2,12 +2,17 @@ package com.aprendeblockchain.miblockchainenjava.nodo.services;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.KeyPair;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.annotation.PreDestroy;
 
+import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.context.WebServerInitializedEvent;
 import org.springframework.context.ApplicationListener;
@@ -15,6 +20,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.aprendeblockchain.miblockchainenjava.Configuracion;
+import com.aprendeblockchain.miblockchainenjava.commons.estructuras.Bloque;
+import com.aprendeblockchain.miblockchainenjava.commons.estructuras.Transaccion;
+import com.aprendeblockchain.miblockchainenjava.commons.utilidades.UtilidadesFirma;
 
 @Service
 public class ServiceNodo implements ApplicationListener<WebServerInitializedEvent> {
@@ -29,6 +37,7 @@ public class ServiceNodo implements ApplicationListener<WebServerInitializedEven
 	private Set<URL> nodosVecinos = new HashSet<>();
 
 	private RestTemplate restTemplate = new RestTemplate();
+	public boolean inicializado = false;
 
 	@Autowired
 	public ServiceNodo(ServiceBloques servicioCadenaDeBloques, ServiceTransacciones servicioTransacciones) {
@@ -57,6 +66,13 @@ public class ServiceNodo implements ApplicationListener<WebServerInitializedEven
 		// descargar cadena de bloques y transacciones en pool si no soy nodo master
 		if (miUrlNodo.equals(urlNodoMaster)) {
 			System.out.println("Ejecutando nodo master");
+			//crear bloque genesis			
+			/*
+			 * try { Bloque genesis = this.getBloqueGenesis();
+			 * //servicioBloques.añadirBloque(genesis); } catch (Exception e) {
+			 * System.out.println("No se pudo añadir el bloque génesis"); }
+			 */
+			
 		} else {
 			nodosVecinos.add(urlNodoMaster);
 
@@ -68,6 +84,8 @@ public class ServiceNodo implements ApplicationListener<WebServerInitializedEven
 			// dar de alta mi nodo en el resto de nodos en la red
 			emitirPeticionPostNodosVecinos("nodo", miUrlNodo);
 		}
+		
+		inicializado = true;
 	}
 
 	/**
@@ -178,5 +196,33 @@ public class ServiceNodo implements ApplicationListener<WebServerInitializedEven
 			return null;
 		}
 	}
+	
+	/**
+	 * Bloque genesis
+	 * @throws Exception 
+	 */
+	private Bloque getBloqueGenesis() throws Exception {
 
+		//PUBLIC KEY: MIIBtzCCASwGByqGSM44BAEwggEfAoGBAP1/U4EddRIpUt9KnC7s5Of2EbdSPO9EAMMeP4C2USZpRV1AIlH7WT2NWPq/xfW6MPbLm1Vs14E7gB00b/JmYLdrmVClpJ+f6AR7ECLCT7up1/63xhv4O1fnxqimFQ8E+4P208UewwI1VBNaFpEy9nXzrith1yrv8iIDGZ3RSAHHAhUAl2BQjxUjC8yykrmCouuEC/BYHPUCgYEA9+GghdabPd7LvKtcNrhXuXmUr7v6OuqC+VdMCz0HgmdRWVeOutRZT+ZxBxCBgLRJFnEj6EwoFhO3zwkyjMim4TwWeotUfI0o4KOuHiuzpnWRbqN/C/ohNWLx+2J6ASQ7zKTxvqhRkImog9/hWuWfBpKLZl6Ae1UlZAFMO/7PSSoDgYQAAoGAY/Vx+BoONG2RSNIuM8ZrrVJ/Y0fbePVbyBAaLVIzIfilYk1WCGvz/ijOzk9Gp6DesHbXnf9MZptm36a3amu3JEBFyaBP4/j2gTs+N47UbvB/45hnjTdN0yI2H6iubxn8wgq2MartRYFRhF2D6Dcaw0DqNkRqyHDB2c+gVTTehSI=
+		//PRIVATE KEY: MIIBSwIBADCCASwGByqGSM44BAEwggEfAoGBAP1/U4EddRIpUt9KnC7s5Of2EbdSPO9EAMMeP4C2USZpRV1AIlH7WT2NWPq/xfW6MPbLm1Vs14E7gB00b/JmYLdrmVClpJ+f6AR7ECLCT7up1/63xhv4O1fnxqimFQ8E+4P208UewwI1VBNaFpEy9nXzrith1yrv8iIDGZ3RSAHHAhUAl2BQjxUjC8yykrmCouuEC/BYHPUCgYEA9+GghdabPd7LvKtcNrhXuXmUr7v6OuqC+VdMCz0HgmdRWVeOutRZT+ZxBxCBgLRJFnEj6EwoFhO3zwkyjMim4TwWeotUfI0o4KOuHiuzpnWRbqN/C/ohNWLx+2J6ASQ7zKTxvqhRkImog9/hWuWfBpKLZl6Ae1UlZAFMO/7PSSoEFgIUH7WhGYQ8hnRF4vTspE3CpjZRKqs=
+
+				
+		Transaccion txCoinbase = new Transaccion(Base64.decodeBase64(Configuracion.getInstancia().getCoinbase()));
+		txCoinbase.setTimestamp(System.currentTimeMillis());
+		txCoinbase.setHash(txCoinbase.calcularHashTransaccion());
+		
+		
+		List<Transaccion> transacciones = new ArrayList<Transaccion>(Arrays.asList(txCoinbase));
+		Bloque bloqueGenesis = new Bloque(null, transacciones, 0);
+		
+		return bloqueGenesis;
+	}
+	
+	/**
+	 * Devuelve la URL del nodo
+	 * @return URL del nodo
+	 */
+	public URL getMyURL() {
+		return this.miUrlNodo;
+	}
 }
